@@ -1,0 +1,392 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/* Design-Tokens                                                       */
+/* ------------------------------------------------------------------ */
+
+@theme {
+  --color-olive: #303c32;
+  --color-olive-deep: #232c25;
+  --color-cream: #f7f6f1;
+  --color-beige: #e9e4d9;
+  --color-sand: #d6c9b5;
+  --color-anthracite: #292d29;
+  --color-bronze: #a88e6d;
+  /* dunklere Bronze für kleine Schrift auf hellem Grund (Kontrast ≥ 4.5:1) */
+  --color-bronze-deep: #7a6448;
+
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-silk: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --breakpoint-3xl: 1800px;
+}
+
+@theme inline {
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* Basis                                                               */
+/* ------------------------------------------------------------------ */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 6.5rem;
+    background-color: var(--color-anthracite);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-anthracite);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-sand);
+    color: var(--color-anthracite);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-bronze);
+    outline-offset: 4px;
+  }
+
+  img {
+    max-width: 100%;
+  }
+}
+
+/* Einheitliche, zurückhaltende Farbanmutung aller Fotografien */
+.photo-grade {
+  filter: saturate(0.82) contrast(1.03) brightness(0.98);
+}
+
+/* ------------------------------------------------------------------ */
+/* Wiederverwendbare Bausteine                                         */
+/* ------------------------------------------------------------------ */
+
+@utility container-x {
+  width: 100%;
+  max-width: 1520px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  @media (width >= 40rem) {
+    padding-inline: 2rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 3.5rem;
+  }
+  @media (width >= 96rem) {
+    padding-inline: 4.5rem;
+  }
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+/* Große Display-Typografie – flüssig skaliert, ohne Abschneiden */
+@utility display-xxl {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(3.4rem, 12.5vw, 12.5rem);
+  line-height: 0.86;
+  letter-spacing: -0.025em;
+
+  @media (width < 40rem) {
+    font-size: 18vw;
+  }
+}
+
+@utility display-xl {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(2.75rem, 7.6vw, 8.25rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+@utility display-lg {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(2.4rem, 5.4vw, 5.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.015em;
+}
+
+@utility lead-serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2.3vw, 2.1rem);
+  line-height: 1.28;
+  letter-spacing: -0.005em;
+}
+
+/* Feine Unterstreichung, die sich beim Hover aufbaut */
+@utility link-draw {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.7s var(--ease-soft);
+
+  &:hover,
+  &:focus-visible {
+    background-size: 100% 1px;
+  }
+}
+
+/* Silbentrennung für lange deutsche Wörter */
+@utility hyphenate {
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+/* ------------------------------------------------------------------ */
+/* Animationen                                                         */
+/* ------------------------------------------------------------------ */
+
+/* Scroll-Reveal – nur aktiv, wenn JavaScript läuft (Klasse .js) */
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 2rem, 0);
+  transition:
+    opacity 1.2s var(--ease-soft),
+    transform 1.4s var(--ease-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+html.js [data-reveal="fade"] {
+  transform: none;
+}
+
+html.js [data-reveal="mask"] {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(14% 0 0 0);
+  transition: clip-path 1.6s var(--ease-silk);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+html.js [data-reveal="mask"] .reveal-media {
+  transform: scale(1.14);
+  transition: transform 2.2s var(--ease-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+html.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+html.js [data-reveal="mask"].is-visible {
+  clip-path: inset(0 0 0 0);
+}
+
+html.js [data-reveal="mask"].is-visible .reveal-media {
+  transform: scale(1);
+}
+
+/* Hero: Zeilen steigen aus einer Maske auf */
+.hero-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+.hero-line > span {
+  display: block;
+  animation: hero-rise 1.6s var(--ease-soft) both;
+  animation-delay: var(--line-delay, 0ms);
+}
+
+.hero-fade {
+  animation: hero-fade 1.6s var(--ease-soft) both;
+  animation-delay: var(--line-delay, 0ms);
+}
+
+.hero-image {
+  animation: hero-settle 3.2s var(--ease-soft) both;
+}
+
+@keyframes hero-rise {
+  from {
+    transform: translate3d(0, 108%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-settle {
+  from {
+    transform: scale(1.12);
+    filter: brightness(0.7);
+  }
+  to {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* Scroll-Indikator */
+.scroll-cue {
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll-cue::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  animation: scroll-cue 2.6s var(--ease-silk) infinite;
+}
+
+@keyframes scroll-cue {
+  0% {
+    transform: translateY(-100%);
+  }
+  55% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* Dezente Parallaxe über CSS Scroll-Driven Animations (progressive Verbesserung) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .parallax {
+      animation: parallax-shift linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+@keyframes parallax-shift {
+  from {
+    transform: translate3d(0, -6%, 0) scale(1.14);
+  }
+  to {
+    transform: translate3d(0, 6%, 0) scale(1.14);
+  }
+}
+
+/* Hover-Zoom für Projektbilder */
+.zoom-media {
+  transition: transform 1.6s var(--ease-soft);
+}
+
+.group:hover .zoom-media,
+.group:focus-visible .zoom-media {
+  transform: scale(1.05);
+}
+
+/* Laufband der Gestaltungselemente */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 70s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Reduzierte Bewegung: alle Effekte neutralisieren */
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal],
+  html.js [data-reveal="mask"] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    transition: none !important;
+  }
+
+  html.js [data-reveal="mask"] .reveal-media {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .hero-line > span,
+  .hero-fade,
+  .hero-image,
+  .scroll-cue::after {
+    animation: none !important;
+  }
+
+  .marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: auto;
+  }
+
+  .marquee-track > * {
+    flex-shrink: 1;
+  }
+
+  .marquee-duplicate {
+    display: none;
+  }
+
+  .zoom-media {
+    transition: none;
+  }
+
+  .group:hover .zoom-media {
+    transform: none;
+  }
+}
